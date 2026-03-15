@@ -1,0 +1,20 @@
+node_modules/
+.env
+.cache/
+.config/
+.upm/
+
+# Generated output and local tooling
+dist/
+tmp/
+coverage/
+*.tsbuildinfo
+.local/
+.replitignore
+replit.md
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

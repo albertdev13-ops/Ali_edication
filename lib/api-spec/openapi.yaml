@@ -1,0 +1,819 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: Humain Numérique - Digital Human AI API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: chat
+    description: AI Chat operations
+  - name: memory
+    description: Long-term memory operations
+  - name: tts
+    description: Text-to-Speech operations
+  - name: files
+    description: File generation operations
+  - name: github
+    description: GitHub integration
+  - name: vercel
+    description: Vercel deployment integration
+  - name: settings
+    description: User settings
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /chat/send:
+    post:
+      operationId: sendMessage
+      tags: [chat]
+      summary: Send a message and get AI response
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageInput"
+      responses:
+        "200":
+          description: AI response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "500":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /chat/history:
+    get:
+      operationId: getChatHistory
+      tags: [chat]
+      summary: Get conversation history
+      parameters:
+        - name: conversationId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 50
+      responses:
+        "200":
+          description: Chat history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ChatMessage"
+    delete:
+      operationId: clearChatHistory
+      tags: [chat]
+      summary: Clear conversation history
+      parameters:
+        - name: conversationId
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Cleared
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /chat/conversations:
+    get:
+      operationId: listConversations
+      tags: [chat]
+      summary: List all conversations
+      responses:
+        "200":
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Conversation"
+    post:
+      operationId: createConversation
+      tags: [chat]
+      summary: Create a new conversation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConversationInput"
+      responses:
+        "201":
+          description: Created conversation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversation"
+
+  /chat/conversations/{id}:
+    delete:
+      operationId: deleteConversation
+      tags: [chat]
+      summary: Delete a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /chat/stats:
+    get:
+      operationId: getChatStats
+      tags: [chat]
+      summary: Get chat statistics
+      responses:
+        "200":
+          description: Statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatStats"
+
+  /memory:
+    get:
+      operationId: listMemory
+      tags: [memory]
+      summary: List all memory entries
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Memory entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MemoryEntry"
+    delete:
+      operationId: clearMemory
+      tags: [memory]
+      summary: Clear all memory
+      responses:
+        "200":
+          description: Cleared
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /memory/search:
+    get:
+      operationId: searchMemory
+      tags: [memory]
+      summary: Search memory entries
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MemoryEntry"
+
+  /tts/voices:
+    get:
+      operationId: listVoices
+      tags: [tts]
+      summary: List available TTS voices
+      responses:
+        "200":
+          description: Voice list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Voice"
+
+  /tts/synthesize:
+    post:
+      operationId: synthesizeSpeech
+      tags: [tts]
+      summary: Synthesize text to speech
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TtsInput"
+      responses:
+        "200":
+          description: Audio file URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TtsResponse"
+
+  /files/pdf:
+    post:
+      operationId: generatePdf
+      tags: [files]
+      summary: Generate a PDF document
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PdfInput"
+      responses:
+        "200":
+          description: PDF file info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileResult"
+
+  /files/zip:
+    post:
+      operationId: generateZip
+      tags: [files]
+      summary: Generate a ZIP archive
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ZipInput"
+      responses:
+        "200":
+          description: ZIP file info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileResult"
+
+  /files/list:
+    get:
+      operationId: listFiles
+      tags: [files]
+      summary: List generated files
+      responses:
+        "200":
+          description: Files list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FileResult"
+
+  /github/user:
+    get:
+      operationId: getGithubUser
+      tags: [github]
+      summary: Get GitHub user info
+      responses:
+        "200":
+          description: GitHub user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GithubUser"
+
+  /github/repos:
+    get:
+      operationId: listGithubRepos
+      tags: [github]
+      summary: List GitHub repositories
+      responses:
+        "200":
+          description: Repos list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GithubRepo"
+    post:
+      operationId: createGithubRepo
+      tags: [github]
+      summary: Create a GitHub repository
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GithubRepoInput"
+      responses:
+        "201":
+          description: Created repo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GithubRepo"
+
+  /vercel/projects:
+    get:
+      operationId: listVercelProjects
+      tags: [vercel]
+      summary: List Vercel projects
+      responses:
+        "200":
+          description: Projects list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VercelProject"
+
+  /vercel/deploy:
+    post:
+      operationId: deployToVercel
+      tags: [vercel]
+      summary: Deploy code to Vercel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VercelDeployInput"
+      responses:
+        "200":
+          description: Deployment info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VercelDeployment"
+
+  /vercel/deployments/{id}:
+    get:
+      operationId: getVercelDeployment
+      tags: [vercel]
+      summary: Get Vercel deployment status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deployment status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VercelDeployment"
+
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [settings]
+      summary: Get user settings
+      responses:
+        "200":
+          description: Settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+    put:
+      operationId: updateSettings
+      tags: [settings]
+      summary: Update user settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SettingsInput"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - success
+
+    MessageInput:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+        conversationId:
+          type: ["string", "null"]
+        model:
+          type: string
+          enum: [groq, gemini]
+          default: groq
+        systemPrompt:
+          type: ["string", "null"]
+
+    MessageResponse:
+      type: object
+      required: [id, content, role, createdAt]
+      properties:
+        id:
+          type: string
+        content:
+          type: string
+        role:
+          type: string
+        model:
+          type: string
+        conversationId:
+          type: string
+        createdAt:
+          type: string
+
+    ChatMessage:
+      type: object
+      required: [id, role, content, createdAt]
+      properties:
+        id:
+          type: string
+        role:
+          type: string
+          enum: [user, assistant, system]
+        content:
+          type: string
+        model:
+          type: ["string", "null"]
+        conversationId:
+          type: string
+        fromCache:
+          type: boolean
+        createdAt:
+          type: string
+
+    Conversation:
+      type: object
+      required: [id, title, createdAt]
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        model:
+          type: string
+        messageCount:
+          type: integer
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    ConversationInput:
+      type: object
+      properties:
+        title:
+          type: string
+        model:
+          type: string
+
+    ChatStats:
+      type: object
+      required: [totalMessages, totalConversations, cachedResponses, apiCalls]
+      properties:
+        totalMessages:
+          type: integer
+        totalConversations:
+          type: integer
+        cachedResponses:
+          type: integer
+        apiCalls:
+          type: integer
+        tokensUsed:
+          type: integer
+        topModels:
+          type: array
+          items:
+            type: object
+            properties:
+              model:
+                type: string
+              count:
+                type: integer
+
+    MemoryEntry:
+      type: object
+      required: [id, prompt, response, createdAt]
+      properties:
+        id:
+          type: string
+        prompt:
+          type: string
+        response:
+          type: string
+        model:
+          type: string
+        accessCount:
+          type: integer
+        createdAt:
+          type: string
+
+    Voice:
+      type: object
+      required: [id, name, language, gender]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        language:
+          type: string
+        gender:
+          type: string
+        description:
+          type: string
+        preview:
+          type: ["string", "null"]
+
+    TtsInput:
+      type: object
+      required: [text, voiceId]
+      properties:
+        text:
+          type: string
+        voiceId:
+          type: string
+        rate:
+          type: string
+        pitch:
+          type: string
+
+    TtsResponse:
+      type: object
+      required: [audioUrl, duration]
+      properties:
+        audioUrl:
+          type: string
+        duration:
+          type: number
+        text:
+          type: string
+
+    PdfInput:
+      type: object
+      required: [content, title]
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        format:
+          type: string
+          enum: [A4, letter]
+          default: A4
+
+    ZipInput:
+      type: object
+      required: [files, name]
+      properties:
+        name:
+          type: string
+        files:
+          type: array
+          items:
+            type: object
+            required: [filename, content]
+            properties:
+              filename:
+                type: string
+              content:
+                type: string
+
+    FileResult:
+      type: object
+      required: [id, name, type, downloadUrl, size, createdAt]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum: [pdf, zip]
+        downloadUrl:
+          type: string
+        size:
+          type: integer
+        createdAt:
+          type: string
+
+    GithubUser:
+      type: object
+      required: [login, name, avatarUrl, publicRepos]
+      properties:
+        login:
+          type: string
+        name:
+          type: ["string", "null"]
+        avatarUrl:
+          type: string
+        publicRepos:
+          type: integer
+        bio:
+          type: ["string", "null"]
+        followers:
+          type: integer
+
+    GithubRepo:
+      type: object
+      required: [id, name, fullName, htmlUrl, private, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        fullName:
+          type: string
+        description:
+          type: ["string", "null"]
+        htmlUrl:
+          type: string
+        private:
+          type: boolean
+        language:
+          type: ["string", "null"]
+        stars:
+          type: integer
+        createdAt:
+          type: string
+
+    GithubRepoInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        private:
+          type: boolean
+          default: false
+        autoInit:
+          type: boolean
+          default: true
+
+    VercelProject:
+      type: object
+      required: [id, name, createdAt]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        url:
+          type: ["string", "null"]
+        framework:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    VercelDeployInput:
+      type: object
+      required: [name, files]
+      properties:
+        name:
+          type: string
+        files:
+          type: array
+          items:
+            type: object
+            required: [file, data]
+            properties:
+              file:
+                type: string
+              data:
+                type: string
+
+    VercelDeployment:
+      type: object
+      required: [id, url, state, createdAt]
+      properties:
+        id:
+          type: string
+        url:
+          type: string
+        state:
+          type: string
+          enum: [BUILDING, READY, ERROR, CANCELED]
+        name:
+          type: string
+        createdAt:
+          type: string
+        inspectorUrl:
+          type: ["string", "null"]
+
+    Settings:
+      type: object
+      required: [defaultModel, defaultVoiceId, streamingEnabled, autoSave]
+      properties:
+        defaultModel:
+          type: string
+          enum: [groq, gemini]
+        defaultVoiceId:
+          type: string
+        streamingEnabled:
+          type: boolean
+        autoSave:
+          type: boolean
+        systemPrompt:
+          type: string
+        fontSize:
+          type: string
+          enum: [small, medium, large]
+
+    SettingsInput:
+      type: object
+      properties:
+        defaultModel:
+          type: string
+          enum: [groq, gemini]
+        defaultVoiceId:
+          type: string
+        streamingEnabled:
+          type: boolean
+        autoSave:
+          type: boolean
+        systemPrompt:
+          type: string
+        fontSize:
+          type: string
+          enum: [small, medium, large]

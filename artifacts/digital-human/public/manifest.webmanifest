@@ -1,0 +1,19 @@
+{
+  "name": "ALI — Humain Numérique",
+  "short_name": "ALI",
+  "description": "Ton Humain Numérique et Prof de Kinshasa.",
+  "lang": "fr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#061525",
+  "theme_color": "#00d4ff",
+  "icons": [
+    {
+      "src": "/avatars/zack-preview.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+- [ALI Architecture](num-ia-architecture.md) — ALI identity, VRM avatar, TTS sync, memory, web search, PWA, and package/runtime constraints
