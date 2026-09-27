@@ -164,8 +164,7 @@ export function VRMAvatar({ isSpeaking, speechText = '' }: VRMAvatarProps) {
         powerPreference: 'high-performance',
       });
     } catch {
-      // Replit's screenshot sandbox can run without GPU/WebGL. Keep the UI
-      // usable there while real browsers still get the full VRM renderer.
+      // Keep the interface usable on browsers without GPU/WebGL support.
       return renderFallbackAvatar(canvas);
     }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));

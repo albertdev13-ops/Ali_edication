@@ -10,8 +10,6 @@ tmp/
 coverage/
 *.tsbuildinfo
 .local/
-.replitignore
-replit.md
 
 # Editor and operating-system files
 .vscode/
