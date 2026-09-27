@@ -70,3 +70,8 @@ description: Key architectural decisions for the Humain Numérique app (NUM_IA)
 - Route guards must re-read persisted onboarding state after navigation rather than relying on a separate hook snapshot; async local saves can otherwise redirect a successfully completed flow back to its final screen.
 
 **Why:** The onboarding page and the app shell each own a hook instance, so the shell can still hold `firstRunCompleted: false` after the onboarding page has saved completion.
+
+## Public repository cleanup
+- Managed preview descriptors belong to the workspace layer, not the public source tree. Removing them can unregister preview targets while leaving application source directories intact.
+
+**Why:** Public repository cleanup and local preview registration are separate concerns; preserve source files and verify the build after removing workspace metadata.
